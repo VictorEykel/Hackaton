@@ -10,6 +10,7 @@ import {
 import {
   Home,
   LogOut,
+  MessageCircle,
   Package,
   PanelBottom,
   Settings2,
@@ -132,15 +133,15 @@ export function Sidebar(props: SidebarProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href={"#"}
+                  href={"/chathistory"}
                   className="flex w-9 h-9 shrink-0 items-center justify-center text-muted-foreground rounded-lg transition-colors hover:text-foreground"
                 >
-                  <ShoppingBag className="w-5 h-5" />
-                  <span className="sr-only">Pedidos</span>
+                  <MessageCircle className="w-5 h-5" />
+                  <span className="sr-only">Histórico de Conversas</span>
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <span>Pedidos</span>
+                <span>Histórico de Conversas</span>
               </TooltipContent>
             </Tooltip>
 
