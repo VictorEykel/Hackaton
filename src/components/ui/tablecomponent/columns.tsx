@@ -11,19 +11,18 @@ import {
 import { ChevronDown, MoreHorizontal } from "lucide-react";
 import { Button } from "../button";
 
-export type Services = {
-  id: number;
+interface Atendimento {
+  id: string;
   registerDate: string;
   ticketId: string;
-  operation: string;
   clientName: string;
   attendant: string;
   contact: string;
   tag: string;
   status: string;
-};
+}
 
-export const columns: ColumnDef<Services>[] = [
+export const columns: ColumnDef<Atendimento>[] = [
   {
     accessorKey: "registerDate",
     header: ({ column }) => {
