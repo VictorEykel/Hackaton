@@ -1,9 +1,9 @@
 
-# Travel AI
+# Travel AI ✈️
 
 **Travel AI** é uma plataforma web inteligente de atendimento ao cliente focada em planejamento de viagens, que utiliza inteligência artificial para oferecer suporte personalizado, reservas automatizadas e análise avançada de dados. Nosso objetivo é transformar a experiência do usuário, tornando o planejamento de viagens mais ágil, eficiente e humanizado.
 
-## Estrutura
+## Estrutura 🗂️
 ```
 /src
     /app
@@ -18,7 +18,7 @@
     /styles
 
 ```
-## API's
+## API's 🔌
 Cada pasta dentro de `/src/app/api` representa uma rota API REST, responsável por uma funcionalidade específica:
 - `/api/chat`: Handler e lógica do chatbot, gerencia fluxo e contexto
 - `/api/dashboard`: Dados para KPIs e relatórios do dashboard 
@@ -41,7 +41,7 @@ Cada pasta dentro de `/src/app/api` representa uma rota API REST, responsável p
 
 ---
 
-## Instalação
+## Instalação 🚀
 1. Clone o repositório:
 
 > git clone https://github.com/VictorEykel/Hackaton
@@ -57,7 +57,6 @@ Cada pasta dentro de `/src/app/api` representa uma rota API REST, responsável p
 > 
 > OPENAI_API_KEY=your_openai_api_key
 > N8N_API_URL=your_n8n_api_url
-> JWT_SECRET=your_jwt_secret
 
 4. Rode a aplicação em modo de desenvolvimento:
 
