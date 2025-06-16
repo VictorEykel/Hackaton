@@ -13,11 +13,11 @@ Travel AI é um sistema completo que integra chatbot inteligente, validação de
         /api --> Contém todas as rotas e lógicas relacionadas à API.
         /chat --> Rota do chatbot, fluxo e comunicação com o banco de dados.
         /dashboard --> Rota e lógica para o dashboard, inclui relatórios detalhados
-    /components
-    /lib
-    /services
-    /hooks
-    /types
+    /components 
+    /lib  --> Helpers, conexão com MongoDB, integração com n8n
+    /services --> Serviços para chamadas HTTP, abstração de APIs externas e workflows n8n
+    /hooks --> Custom React hooks para estado e lógica compartilhada
+    /types --> Tipos TypeScript para mensagens, dados, respostas
     /styles
 
 ```
@@ -57,6 +57,7 @@ Cada pasta dentro de `/src/app/api` representa uma rota API REST, responsável p
 3. Configure as variáveis de ambiente no arquivo `.env.local` (exemplo):
 
 > MONGODB_URI=your_mongodb_connection_string
+> 
 > OPENAI_API_KEY=your_openai_api_key
 > N8N_API_URL=your_n8n_api_url
 > JWT_SECRET=your_jwt_secret
