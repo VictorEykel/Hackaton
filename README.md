@@ -1,10 +1,7 @@
 
 # Travel AI
 
-Uma breve descrição sobre o que esse projeto faz e para quem ele é
-## Sobre
-
-Travel AI é um sistema completo que integra chatbot inteligente, validação de dados, reservas de viagens e hotéis.
+**Travel AI** é uma plataforma web inteligente de atendimento ao cliente focada em planejamento de viagens, que utiliza inteligência artificial para oferecer suporte personalizado, reservas automatizadas e análise avançada de dados. Nosso objetivo é transformar a experiência do usuário, tornando o planejamento de viagens mais ágil, eficiente e humanizado.
 
 ## Estrutura
 ```
