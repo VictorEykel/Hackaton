@@ -11,6 +11,10 @@ import {
   Download,
   Trash2,
   ArrowLeft,
+  ClipboardList,
+  Plane,
+  X,
+  FileText,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,12 +35,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import Link from "next/link";
 
 type Message = {
   id: number;
   sender: "user" | "bot";
   content: string;
   timestamp: string;
+};
+
+type ConversationSummary = {
+  mainTopic: string;
+  userIntent: string;
+  resolution: string;
+  duration: string;
+  keyPoints: string[];
+  sentiment: "positive" | "neutral" | "negative";
 };
 
 type Conversation = {
@@ -49,6 +75,7 @@ type Conversation = {
   messageCount: number;
   avatar: string | null;
   messages: Message[];
+  summary?: ConversationSummary;
 };
 
 export default function ChatHistoryPage() {
@@ -58,6 +85,8 @@ export default function ChatHistoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [showConversationList, setShowConversationList] = useState(true);
+  const [showSummaryDialog, setShowSummaryDialog] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   // Dados de exemplo para demonstração
   const mockConversations: Conversation[] = [
@@ -70,6 +99,20 @@ export default function ChatHistoryPage() {
       status: "completed",
       messageCount: 15,
       avatar: null,
+      summary: {
+        mainTopic: "Suporte ao pedido",
+        userIntent: "Verificar status do pedido #12345",
+        resolution:
+          "Informações fornecidas sobre prazo de entrega e rastreamento",
+        duration: "15 minutos",
+        keyPoints: [
+          "Cliente solicitou informações sobre pedido #12345",
+          "Pedido em processamento com envio em 2 dias úteis",
+          "Código de rastreamento será enviado por SMS",
+          "Atendimento concluído com satisfação",
+        ],
+        sentiment: "positive",
+      },
       messages: [
         {
           id: 1,
@@ -127,6 +170,21 @@ export default function ChatHistoryPage() {
       status: "pending",
       messageCount: 8,
       avatar: "https://github.com/VictorEykel.png",
+      summary: {
+        mainTopic: "Informações sobre horários",
+        userIntent:
+          "Consultar horários de funcionamento e solicitar atendimento humano",
+        resolution:
+          "Informações fornecidas, aguardando transferência para atendente",
+        duration: "15 minutos",
+        keyPoints: [
+          "Cliente consultou horários de funcionamento",
+          "Informado funcionamento de segunda a sábado",
+          "Domingos disponível apenas canais digitais",
+          "Solicitou transferência para atendente humano",
+        ],
+        sentiment: "neutral",
+      },
       messages: [
         {
           id: 1,
@@ -173,6 +231,19 @@ export default function ChatHistoryPage() {
       status: "completed",
       messageCount: 12,
       avatar: null,
+      summary: {
+        mainTopic: "Suporte técnico - Login",
+        userIntent: "Resolver problema de acesso à conta",
+        resolution: "Senha redefinida com sucesso",
+        duration: "20 minutos",
+        keyPoints: [
+          "Cliente com dificuldade para fazer login",
+          "Erro de senha incorreta identificado",
+          "Link de redefinição enviado por email",
+          "Problema resolvido com sucesso",
+        ],
+        sentiment: "positive",
+      },
       messages: [
         {
           id: 1,
@@ -282,6 +353,28 @@ export default function ChatHistoryPage() {
     }
   };
 
+  const getSentimentColor = (sentiment: string) => {
+    switch (sentiment) {
+      case "positive":
+        return "text-green-600 bg-green-50";
+      case "negative":
+        return "text-red-600 bg-red-50";
+      default:
+        return "text-gray-600 bg-gray-50";
+    }
+  };
+
+  const getSentimentText = (sentiment: string) => {
+    switch (sentiment) {
+      case "positive":
+        return "Positivo";
+      case "negative":
+        return "Negativo";
+      default:
+        return "Neutro";
+    }
+  };
+
   const filteredConversations = conversations.filter((conv) => {
     const matchesSearch =
       conv.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -302,6 +395,30 @@ export default function ChatHistoryPage() {
     setSelectedConversation(null);
   };
 
+  const handleShowSummary = async (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    setShowSummaryDialog(true);
+
+    // Se não há resumo, simular carregamento do banco de dados
+    if (!conversation.summary) {
+      setSummaryLoading(true);
+      // Simular delay de API
+      setTimeout(() => {
+        setSummaryLoading(false);
+      }, 2000);
+    }
+  };
+
+  const handleExportConversation = (conversation: Conversation) => {
+    // Implementar exportação futuramente
+    console.log("Exportar conversa:", conversation.id);
+  };
+
+  const handleDeleteConversation = (conversation: Conversation) => {
+    // Implementar exclusão futuramente
+    console.log("Excluir conversa:", conversation.id);
+  };
+
   return (
     <div className="flex flex-col sm:flex-row h-screen bg-gray-50 sm:ml-14">
       {/* Lista de Conversas - Sidebar no desktop, fullscreen no mobile */}
@@ -313,7 +430,7 @@ export default function ChatHistoryPage() {
       >
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center gap-3 py-4">
-            <MessageCircle size={30}/>
+            <MessageCircle size={30} />
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
               Histórico de conversas
             </h1>
@@ -343,18 +460,18 @@ export default function ChatHistoryPage() {
         </div>
 
         <ScrollArea className="flex-1">
-          <div className="p-2">
+          <div className="flex flex-col gap-2 p-2">
             {filteredConversations.map((conversation) => (
               <Card
                 key={conversation.id}
-                className={`mb-2 cursor-pointer transition-colors hover:bg-gray-50 ${
+                className={`p-2 cursor-pointer transition-colors hover:bg-gray-50 ${
                   selectedConversation?.id === conversation.id
                     ? "border-blue-500 bg-blue-50"
                     : ""
                 }`}
                 onClick={() => handleConversationSelect(conversation)}
               >
-                <CardContent className="p-3">
+                <CardContent className="p-1">
                   <div className="flex items-start gap-3">
                     <Avatar className="w-10 h-10 flex-shrink-0">
                       <AvatarImage src={conversation.avatar || undefined} />
@@ -368,9 +485,55 @@ export default function ChatHistoryPage() {
                         <h3 className="font-medium text-sm text-gray-900 truncate">
                           {conversation.userName}
                         </h3>
-                        <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
-                          {formatTimestamp(conversation.timestamp)}
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs text-gray-500 flex-shrink-0">
+                            {formatTimestamp(conversation.timestamp)}
+                          </span>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              asChild
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                              >
+                                <MoreVertical className="w-3 h-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleShowSummary(conversation);
+                                }}
+                              >
+                                <FileText className="w-4 h-4 mr-2" />
+                                Ver resumo
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleExportConversation(conversation);
+                                }}
+                              >
+                                <Download className="w-4 h-4 mr-2" />
+                                Exportar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-red-600"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteConversation(conversation);
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Excluir conversa
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
 
                       <p className="text-xs text-gray-500 mb-2 truncate">
@@ -460,15 +623,6 @@ export default function ChatHistoryPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="hidden sm:flex"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Exportar
-                  </Button>
-
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm">
@@ -476,15 +630,26 @@ export default function ChatHistoryPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem className="sm:hidden">
+                      <DropdownMenuItem
+                        onClick={() => handleShowSummary(selectedConversation)}
+                      >
+                        <FileText className="w-4 h-4 mr-2" />
+                        Ver resumo
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          handleExportConversation(selectedConversation)
+                        }
+                      >
                         <Download className="w-4 h-4 mr-2" />
                         Exportar
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Ver detalhes
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600">
+                      <DropdownMenuItem
+                        className="text-red-600"
+                        onClick={() =>
+                          handleDeleteConversation(selectedConversation)
+                        }
+                      >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Excluir conversa
                       </DropdownMenuItem>
@@ -564,6 +729,175 @@ export default function ChatHistoryPage() {
           </div>
         )}
       </div>
+
+      {/* Dialog do Resumo */}
+      <Dialog open={showSummaryDialog} onOpenChange={setShowSummaryDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Resumo da Conversa
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedConversation && (
+            <div className="space-y-2">
+              {/* Informações básicas */}
+              <div className="bg-gray-50 p-1.5 sm:p-4 rounded-lg">
+                <div className="flex items-center gap-3 mb-3">
+                  <Avatar className=" sm:w-10 sm:h-10">
+                    <AvatarImage
+                      src={selectedConversation.avatar || undefined}
+                    />
+                    <AvatarFallback>
+                      <User className="w-5 h-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-semibold">
+                      {selectedConversation.userName}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {selectedConversation.userPhone}
+                    </p>
+                  </div>
+                  <Badge
+                    className={getStatusColor(selectedConversation.status)}
+                  >
+                    {getStatusText(selectedConversation.status)}
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Data:</span>
+                    <p className="font-medium">
+                      {formatTimestamp(selectedConversation.timestamp)}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Mensagens:</span>
+                    <p className="font-medium">
+                      {selectedConversation.messageCount}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Resumo */}
+              {summaryLoading ? (
+                <div className="space-y-4">
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                    <div className="h-20 bg-gray-200 rounded mb-4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  </div>
+                  <p className="text-center text-gray-500">
+                    Carregando resumo...
+                  </p>
+                </div>
+              ) : selectedConversation.summary ? (
+                <div className="space-y-2">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 ">
+                      Tópico Principal
+                    </h4>
+                    <p className="text-gray-700">
+                      {selectedConversation.summary.mainTopic}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900">
+                      Intenção do Cliente
+                    </h4>
+                    <p className="text-gray-700">
+                      {selectedConversation.summary.userIntent}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900">
+                      Resolução
+                    </h4>
+                    <p className="text-gray-700">
+                      {selectedConversation.summary.resolution}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-semibold text-gray-900">
+                        Duração
+                      </h4>
+                      <p className="text-gray-700">
+                        {selectedConversation.summary.duration}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">
+                        Sentimento
+                      </h4>
+                      <Badge
+                        className={getSentimentColor(
+                          selectedConversation.summary.sentiment
+                        )}
+                      >
+                        {getSentimentText(
+                          selectedConversation.summary.sentiment
+                        )}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900">
+                      Pontos-chave
+                    </h4>
+                    <ul className="space-y-1">
+                      {selectedConversation.summary.keyPoints.map(
+                        (point, index) => (
+                          <li key={index} className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0"></span>
+                            <span className="text-gray-700">{point}</span>
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">
+                    Resumo não disponível para esta conversa
+                  </p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    O resumo será gerado automaticamente em breve
+                  </p>
+                </div>
+              )}
+
+              {/* Botões de ação */}
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    selectedConversation &&
+                    handleExportConversation(selectedConversation)
+                  }
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar
+                </Button>
+                <Button onClick={() => setShowSummaryDialog(false)}>
+                  Fechar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
