@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useState, useEffect } from "react";
 import {
   Search,
@@ -10,6 +10,7 @@ import {
   MoreVertical,
   Download,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -50,11 +51,13 @@ type Conversation = {
   messages: Message[];
 };
 
-export default function ChatHistory() {
+export default function ChatHistoryPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [showConversationList, setShowConversationList] = useState(true);
 
   // Dados de exemplo para demonstração
   const mockConversations: Conversation[] = [
@@ -228,7 +231,7 @@ export default function ChatHistory() {
   const formatTimestamp = (timestamp: string | number | Date) => {
     const date = new Date(timestamp);
     const now = new Date();
-    const diff = now - date;
+    const diff = now.getTime() - date.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
 
     if (hours < 1) {
@@ -289,38 +292,53 @@ export default function ChatHistory() {
     return matchesSearch && matchesFilter;
   });
 
+  const handleConversationSelect = (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    setShowConversationList(false);
+  };
+
+  const handleBackToList = () => {
+    setShowConversationList(true);
+    setSelectedConversation(null);
+  };
+
   return (
-    <div className="flex h-screen bg-gray-50 ml-14  ">
-      {/* Sidebar - Lista de Conversas */}
-      <div className="w-1/3 bg-white border-r border-gray-200 flex flex-col">
+    <div className="flex flex-col sm:flex-row h-screen bg-gray-50 sm:ml-14">
+      {/* Lista de Conversas - Sidebar no desktop, fullscreen no mobile */}
+      <div
+        className={`
+        ${showConversationList ? "flex" : "hidden sm:flex"} 
+        w-full sm:w-1/3 bg-white border-r border-gray-200 flex-col
+      `}
+      >
         <div className="p-4 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <MessageCircle className="w-6 h-6" />
-            Histórico de Conversas
-          </h1>
+          <div className="flex items-center gap-3 py-4">
+            <MessageCircle size={30}/>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+              Histórico de conversas
+            </h1>
+          </div>
 
           <div className="space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="flex gap-2">
               <Input
                 placeholder="Buscar conversas..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
               />
-            </div>
 
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrar por status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="completed">Finalizadas</SelectItem>
-                <SelectItem value="pending">Pendentes</SelectItem>
-                <SelectItem value="active">Ativas</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filtrar por status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="completed">Finalizadas</SelectItem>
+                  <SelectItem value="pending">Pendentes</SelectItem>
+                  <SelectItem value="active">Ativas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -334,12 +352,12 @@ export default function ChatHistory() {
                     ? "border-blue-500 bg-blue-50"
                     : ""
                 }`}
-                onClick={() => setSelectedConversation(conversation)}
+                onClick={() => handleConversationSelect(conversation)}
               >
                 <CardContent className="p-3">
                   <div className="flex items-start gap-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={conversation.avatar} />
+                    <Avatar className="w-10 h-10 flex-shrink-0">
+                      <AvatarImage src={conversation.avatar || undefined} />
                       <AvatarFallback>
                         <User className="w-5 h-5" />
                       </AvatarFallback>
@@ -350,12 +368,12 @@ export default function ChatHistory() {
                         <h3 className="font-medium text-sm text-gray-900 truncate">
                           {conversation.userName}
                         </h3>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
                           {formatTimestamp(conversation.timestamp)}
                         </span>
                       </div>
 
-                      <p className="text-xs text-gray-500 mb-2">
+                      <p className="text-xs text-gray-500 mb-2 truncate">
                         {conversation.userPhone}
                       </p>
 
@@ -380,43 +398,73 @@ export default function ChatHistory() {
                 </CardContent>
               </Card>
             ))}
+
+            {filteredConversations.length === 0 && (
+              <div className="text-center py-8">
+                <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">Nenhuma conversa encontrada</p>
+              </div>
+            )}
           </div>
         </ScrollArea>
       </div>
 
       {/* Área Principal - Visualização da Conversa */}
-      <div className="flex-1 flex flex-col">
+      <div
+        className={`
+        ${!showConversationList ? "flex" : "hidden sm:flex"} 
+        flex-1 flex-col
+      `}
+      >
         {selectedConversation ? (
           <>
             {/* Header da conversa */}
             <div className="bg-white border-b border-gray-200 p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Avatar className="w-10 h-10">
-                    <AvatarImage src={selectedConversation.avatar} />
+                  {/* Botão voltar - apenas no mobile */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="sm:hidden p-2 h-auto"
+                    onClick={handleBackToList}
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </Button>
+
+                  <Avatar className="w-10 h-10 flex-shrink-0">
+                    <AvatarImage
+                      src={selectedConversation.avatar || undefined}
+                    />
                     <AvatarFallback>
                       <User className="w-5 h-5" />
                     </AvatarFallback>
                   </Avatar>
 
-                  <div>
-                    <h2 className="font-semibold text-gray-900">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="font-semibold text-gray-900 truncate">
                       {selectedConversation.userName}
                     </h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 truncate">
                       {selectedConversation.userPhone}
                     </p>
                   </div>
 
                   <Badge
-                    className={`${getStatusColor(selectedConversation.status)}`}
+                    className={`${getStatusColor(
+                      selectedConversation.status
+                    )} flex-shrink-0`}
                   >
                     {getStatusText(selectedConversation.status)}
                   </Badge>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="hidden sm:flex"
+                  >
                     <Download className="w-4 h-4 mr-2" />
                     Exportar
                   </Button>
@@ -427,7 +475,11 @@ export default function ChatHistory() {
                         <MoreVertical className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem className="sm:hidden">
+                        <Download className="w-4 h-4 mr-2" />
+                        Exportar
+                      </DropdownMenuItem>
                       <DropdownMenuItem>
                         <Calendar className="w-4 h-4 mr-2" />
                         Ver detalhes
@@ -444,7 +496,7 @@ export default function ChatHistory() {
 
             {/* Área de mensagens */}
             <ScrollArea className="flex-1 p-4">
-              <div className="space-y-4">
+              <div className="space-y-4 max-w-4xl mx-auto">
                 {selectedConversation.messages.map((message) => (
                   <div
                     key={message.id}
@@ -455,13 +507,13 @@ export default function ChatHistory() {
                     }`}
                   >
                     <div
-                      className={`flex items-start gap-2 max-w-[70%] ${
+                      className={`flex items-start gap-2 max-w-[85%] sm:max-w-[70%] ${
                         message.sender === "user"
                           ? "flex-row-reverse"
                           : "flex-row"
                       }`}
                     >
-                      <Avatar className="w-8 h-8">
+                      <Avatar className="w-8 h-8 flex-shrink-0">
                         <AvatarFallback>
                           {message.sender === "user" ? (
                             <User className="w-4 h-4" />
@@ -478,7 +530,9 @@ export default function ChatHistory() {
                             : "bg-gray-100 text-gray-900"
                         }`}
                       >
-                        <p className="text-sm">{message.content}</p>
+                        <p className="text-sm leading-relaxed break-words">
+                          {message.content}
+                        </p>
                         <p
                           className={`text-xs mt-1 ${
                             message.sender === "user"
@@ -496,13 +550,13 @@ export default function ChatHistory() {
             </ScrollArea>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center p-8">
             <div className="text-center">
               <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 Selecione uma conversa
               </h3>
-              <p className="text-gray-500">
+              <p className="text-gray-500 text-center">
                 Escolha uma conversa da lista para visualizar o histórico
                 completo
               </p>

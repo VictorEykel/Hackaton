@@ -1,21 +1,11 @@
 import Link from "next/link";
-import { Button } from "../button";
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "../sheet";
 import {
   Home,
+  LaptopMinimal,
+  LineChart,
   LogOut,
   MessageCircle,
-  Package,
-  PanelBottom,
-  Settings2,
-  ShoppingBag,
-  Users,
+  Plane,
 } from "lucide-react";
 import {
   Tooltip,
@@ -23,102 +13,35 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../tooltip";
+import Header from "../header";
 
 interface SidebarProps {}
 export function Sidebar(props: SidebarProps) {
   return (
     <div className="w-full flex flex-col bg-muted/40">
-      <div className="sm:hidden flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-        <header className="sticky top-0 z-30 flex h-14 items-center px-4 border-b bg-background gap-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button size="icon" variant="outline" className="sm:hidden">
-                <PanelBottom className="w-5 h-5" />
-                <span className="sr-only">Abrir / Fechar menu</span>
-              </Button>
-            </SheetTrigger>
-
-            <SheetContent side="left" className="sm:max-w-x">
-              <SheetHeader>
-                <SheetTitle>Dashboard</SheetTitle>
-              </SheetHeader>
-
-              <nav className="flex flex-col gap-6 text-lg font-medium px-5">
-                <Link
-                  href={"/"}
-                  className="flex items-center justify-center text-primary-foreground md:text-base h-10 w-10 bg-primary rounded-full gap-2"
-                  prefetch={false}
-                >
-                  <Package className="h-5 w-5 transition-all" />
-                  <span className="sr-only">Logo do projeto</span>
-                </Link>
-
-                <Link
-                  href={"/"}
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                  prefetch={false}
-                >
-                  <Home className="h-5 w-5 transition-all" />
-                  <span>Início</span>
-                </Link>
-
-                <Link
-                  href={"/"}
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                  prefetch={false}
-                >
-                  <ShoppingBag className="h-5 w-5 transition-all" />
-                  <span>Pedidos</span>
-                </Link>
-
-                <Link
-                  href={"/"}
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                  prefetch={false}
-                >
-                  <Package className="h-5 w-5 transition-all" />
-                  <span>Produtos</span>
-                </Link>
-
-                <Link
-                  href={"/"}
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                  prefetch={false}
-                >
-                  <Users className="h-5 w-5 transition-all" />
-                  <span>Clientes</span>
-                </Link>
-
-                <Link
-                  href={"/"}
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                  prefetch={false}
-                >
-                  <Settings2 className="h-5 w-5 transition-all" />
-                  <span>Configurações</span>
-                </Link>
-              </nav>
-            </SheetContent>
-          </Sheet>
-          <h2>Menu</h2>
-        </header>
-      </div>
-
+      <Header />
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 border-r bg-background sm:flex sm:flex-col">
         <nav className="flex flex-col items-center gap-4 px-2 py-5">
           <TooltipProvider>
-            <Link
-              href={"#"}
-              className="flex w-9 h-9 shrink-0 items-center justify-center bg-primary text-primary-foreground rounded-full"
-            >
-              <Package className="w-4 h-4" />
-              <span className="sr-only">Dashboard Avatar</span>
-            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href={"/"}
+                  className="flex w-9 h-9 shrink-0 items-center justify-center bg-blue-500 text-primary-foreground rounded-full"
+                >
+                  <Plane className="w-5 h-5" />
+                  <span className="sr-only">Dashboard Avatar</span>
+                </Link>
+              </TooltipTrigger>
+              {/* <TooltipContent side="right">
+                  <span>TravelAI</span>
+                </TooltipContent> */}
+            </Tooltip>
 
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href={"#"}
+                  href={"/"}
                   className="flex w-9 h-9 shrink-0 items-center justify-center text-muted-foreground rounded-lg transition-colors hover:text-foreground"
                 >
                   <Home className="w-5 h-5" />
@@ -127,6 +50,21 @@ export function Sidebar(props: SidebarProps) {
               </TooltipTrigger>
               <TooltipContent side="right">
                 <span>Início</span>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href={"/dashboard"}
+                  className="flex w-9 h-9 shrink-0 items-center justify-center text-muted-foreground rounded-lg transition-colors hover:text-foreground"
+                >
+                  <LineChart className="w-5 h-5" />
+                  <span className="sr-only">Dashboard</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <span>Dashboard</span>
               </TooltipContent>
             </Tooltip>
 
@@ -148,34 +86,19 @@ export function Sidebar(props: SidebarProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href={"#"}
+                  href={"/services"}
                   className="flex w-9 h-9 shrink-0 items-center justify-center text-muted-foreground rounded-lg transition-colors hover:text-foreground"
                 >
-                  <Package className="w-5 h-5" />
-                  <span className="sr-only">Produtos</span>
+                  <LaptopMinimal className="w-5 h-5" />
+                  <span className="sr-only">Atendimentos</span>
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <span>Produtos</span>
+                <span>Atendimentos</span>
               </TooltipContent>
             </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href={"#"}
-                  className="flex w-9 h-9 shrink-0 items-center justify-center text-muted-foreground rounded-lg transition-colors hover:text-foreground"
-                >
-                  <Users className="w-5 h-5" />
-                  <span className="sr-only">Clientes</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <span>Clientes</span>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
+            {/* <Tooltip>
               <TooltipTrigger asChild>
                 <Link
                   href={"#"}
@@ -188,11 +111,12 @@ export function Sidebar(props: SidebarProps) {
               <TooltipContent side="right">
                 <span>Configuracões</span>
               </TooltipContent>
-            </Tooltip>
+            </Tooltip> */}
           </TooltipProvider>
         </nav>
 
-        <nav className="mt-auto flex flex-col items-center gap-4 px-2 py-5">
+        {/* botao de sair */}
+        {/* <nav className="mt-auto flex flex-col items-center gap-4 px-2 py-5">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -209,7 +133,7 @@ export function Sidebar(props: SidebarProps) {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        </nav>
+        </nav> */}
       </aside>
     </div>
   );
