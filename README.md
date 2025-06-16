@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Travel AI
 
-First, run the development server:
+Uma breve descrição sobre o que esse projeto faz e para quem ele é
+## Sobre
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Travel AI é um sistema completo que integra chatbot inteligente, validação de dados, reservas de viagens e hotéis.
+
+## Estrutura
 ```
+/src
+    /app
+        /api --> Contém todas as rotas e lógicas relacionadas à API.
+        /chat --> Rota do chatbot, fluxo e comunicação com o banco de dados.
+        /dashboard --> Rota e lógica para o dashboard, inclui relatórios detalhados
+    /components
+    /lib
+    /services
+    /hooks
+    /types
+    /styles
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```
+## API's
+Cada pasta dentro de `/src/app/api` representa uma rota API REST, responsável por uma funcionalidade específica:
+- `/api/chat`: Handler e lógica do chatbot, gerencia fluxo e contexto
+- `/api/dashboard`: Dados para KPIs e relatórios do dashboard 
+- `/api/atendimentos`: Gerencia operações relacionadas a atendimentos ao cliente, incluindo criação, atualização e consulta.  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `/api/messages`: Responsável pelo gerenciamento das mensagens trocadas no sistema, incluindo envio, recebimento e histórico.  
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+- `/api/conversations`: Controla o fluxo das conversas, sessões e contexto entre o usuário e o chatbot.  
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/api/resumo`: Gera resumos das interações, atendimentos ou dados relevantes para análise rápida. 
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Ferramentas Utilizadas
+- **Next.js 15** com Turbopack
+- **React** com TypeScript
+- **MongoDB** para armazenamento de dados
+- **n8n** para automação de fluxos (validação, reservas, finalização)
+- **OpenAI** para inteligência artificial
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Instalação
+1. Clone o repositório:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> git clone https://github.com/VictorEykel/Hackaton
+> cd Hackaton
+
+2. Instale as dependências:
+
+> pnpm install
+
+3. Configure as variáveis de ambiente no arquivo `.env.local` (exemplo):
+
+> MONGODB_URI=your_mongodb_connection_string
+> OPENAI_API_KEY=your_openai_api_key
+> N8N_API_URL=your_n8n_api_url
+> JWT_SECRET=your_jwt_secret
+
+4. Rode a aplicação em modo de desenvolvimento:
+
+> pnpm run dev
+
+5. Acesse no navegador:
+
+> http://localhost:3000
