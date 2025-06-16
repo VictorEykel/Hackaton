@@ -54,18 +54,62 @@ export async function handleChatPost(request: NextRequest) {
 
         const usuarioId = await getOrCreateUserBySession(sessionId);
 
-        await addMessageToConversation(usuarioId, sessionId, 'user', lastUserMessage.content);
-
+        // Buscar histórico ANTES de salvar a mensagem do usuário
         const history: ChatMessage[] = await getConversationHistory(sessionId);
 
+        // Se histórico está vazio, envia mensagem de boas-vindas e salva antes de processar a mensagem do usuário
+        if (history.length === 0) {
+            const welcomeMessage = `Olá! Eu sou o TravelAI, seu assistente virtual da TravelTech AI. Estou aqui para tornar o planejamento da sua viagem pelo Brasil simples e rápido — seja reservando hotéis, encontrando os melhores voos ou ajudando com qualquer dúvida. Por onde gostaria de começar hoje?`;
+            await addMessageToConversation(usuarioId, sessionId, 'assistant', welcomeMessage);
+            return new Response(welcomeMessage);
+        }
+
+        // Agora salva a mensagem do usuário
+        await addMessageToConversation(usuarioId, sessionId, 'user', lastUserMessage.content);
+
+        // Atualiza o histórico incluindo a mensagem do usuário
+        const updatedHistory: ChatMessage[] = await getConversationHistory(sessionId);
+
         const messagesForOpenAI: ChatMessage[] = [
-            { role: 'system', content: 'Você é um assistente de viagens amigável e útil, especialista no Brasil.' },
-            ...history,
+            { role: 'system', content: `Você é o TravelAI, assistente virtual da TravelTech AI, especialista em viagens pelo Brasil.
+
+                                        Seu objetivo é ajudar o cliente a planejar a viagem de forma rápida, prática e amigável, guiando-o passo a passo com perguntas simples e diretas, uma de cada vez.
+
+                                        Seja empático, claro e objetivo, evitando perguntas múltiplas na mesma mensagem para não confundir o usuário.
+
+                                        Sempre confirme a resposta do usuário antes de passar para a próxima etapa.
+
+                                        Se o usuário não souber responder, ofereça opções simples para escolher.
+
+                                        Se não souber a resposta para alguma pergunta, informe educadamente que não possui essa informação.
+
+                                        Exemplo de fluxo ideal:
+
+                                        Usuário: Quero viajar  
+                                        Assistente: Ótimo! Para onde você gostaria de ir?  
+
+                                        Usuário: Rio de Janeiro  
+                                        Assistente: Qual a data de início da sua viagem?  
+
+                                        Usuário: 10 de julho  
+                                        Assistente: Qual a data de término da sua viagem?  
+
+                                        Usuário: 15 de julho  
+                                        Assistente: Você prefere hotel, pousada ou Airbnb?  
+
+                                        E assim por diante, sempre uma pergunta por vez, respeitando as respostas do usuário.
+
+                                        Responda sempre de forma clara, objetiva e sem enrolação.
+` },
+            ...updatedHistory,
         ];
 
         const response = await streamText({
-            model: openaiClient.chat('gpt-3.5-turbo'),
+            model: openaiClient.chat('gpt-4o-mini'),
             messages: messagesForOpenAI,
+            temperature: 0.2,
+            maxTokens: 400,
+            topP: 1,
         });
 
         (async () => {
@@ -83,3 +127,5 @@ export async function handleChatPost(request: NextRequest) {
         return new Response(JSON.stringify({ error: 'Erro interno no servidor' }), { status: 500 });
     }
 }
+
+
